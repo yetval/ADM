@@ -1,6 +1,7 @@
 import unittest
 
 from awsdockermanager.advisor import build_tips
+from awsdockermanager.cli import build_parser
 from awsdockermanager.dockerctl import container_problems, docker_error_diagnosis
 
 
@@ -73,6 +74,13 @@ class ScannerTests(unittest.TestCase):
         tips = build_tips(snapshot)
 
         self.assertIn("newgrp docker", tips[0]["detail"])
+
+    def test_update_command_is_registered(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["update"])
+
+        self.assertEqual(args.command, "update")
+        self.assertTrue(callable(args.func))
 
 
 if __name__ == "__main__":

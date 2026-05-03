@@ -6,6 +6,13 @@ ADM_VENV="$ADM_HOME/venv"
 ADM_SRC="$ADM_HOME/src"
 ADM_BIN="/usr/local/bin/adm"
 ADM_BIN_UPPER="/usr/local/bin/ADM"
+SOURCE_DIR="$(pwd -P)"
+TMP_SRC="$(mktemp -d)"
+
+cleanup() {
+  rm -rf "$TMP_SRC"
+}
+trap cleanup EXIT
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "Run this installer with sudo."
@@ -29,8 +36,10 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 install -d "$ADM_HOME"
+cp -R "$SOURCE_DIR/." "$TMP_SRC/"
 rm -rf "$ADM_SRC"
-cp -R "$(pwd)" "$ADM_SRC"
+mkdir -p "$ADM_SRC"
+cp -R "$TMP_SRC/." "$ADM_SRC/"
 python3 -m venv "$ADM_VENV"
 "$ADM_VENV/bin/python" -m pip install --upgrade pip
 "$ADM_VENV/bin/python" -m pip install "$ADM_SRC"

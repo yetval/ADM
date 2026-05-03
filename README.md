@@ -43,9 +43,7 @@ If Docker group permissions were changed during install, log out and back in bef
 Upgrade an existing install:
 
 ```bash
-cd ADM
-git pull
-sudo ./scripts/install-aws.sh
+ADM update
 ```
 
 ## Use
@@ -71,6 +69,7 @@ adm volumes
 adm networks
 adm prune
 adm console
+ADM update
 ```
 
 Inside the terminal console:

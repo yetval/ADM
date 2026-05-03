@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import shutil
+import subprocess
 import sys
+from pathlib import Path
 from typing import Any
 
 from . import dockerctl
@@ -103,6 +107,57 @@ def cmd_console(args: argparse.Namespace) -> int:
     return run_console()
 
 
+def _repo_dir() -> Path:
+    installed = Path("/opt/adm/src")
+    if (installed / ".git").exists():
+        return installed
+    cwd = Path.cwd()
+    if (cwd / ".git").exists():
+        return cwd
+    package_root = Path(__file__).resolve().parents[1]
+    if (package_root / ".git").exists():
+        return package_root
+    return cwd
+
+
+def _run_update_command(args: list[str], cwd: Path) -> int:
+    print(f"$ {' '.join(args)}")
+    proc = subprocess.run(args, cwd=str(cwd), check=False)
+    return int(proc.returncode)
+
+
+def cmd_update(args: argparse.Namespace) -> int:
+    repo = _repo_dir()
+    if os.name != "nt" and hasattr(os, "geteuid") and os.geteuid() != 0:
+        if not shutil.which("sudo"):
+            print("ADM update needs root permissions, and sudo is not available.", file=sys.stderr)
+            return 1
+        print("ADM update needs root permissions. Re-running with sudo...")
+        return subprocess.call(["sudo", sys.executable, "-m", "awsdockermanager.cli", "update"])
+
+    if not (repo / ".git").exists():
+        print(f"Cannot update: {repo} is not a git checkout.", file=sys.stderr)
+        print("Install from https://github.com/yetval/ADM.git or run the installer from a cloned repo.", file=sys.stderr)
+        return 1
+    if not shutil.which("git"):
+        print("Cannot update: git is not installed.", file=sys.stderr)
+        return 1
+    installer = repo / "scripts" / "install-aws.sh"
+    if not installer.exists():
+        print(f"Cannot update: missing installer at {installer}.", file=sys.stderr)
+        return 1
+
+    print(f"Updating ADM from {repo}")
+    code = _run_update_command(["git", "pull", "--ff-only"], repo)
+    if code != 0:
+        return code
+    code = _run_update_command(["bash", str(installer)], repo)
+    if code != 0:
+        return code
+    print("ADM update complete.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="adm", description="AWS Docker Manager")
     sub = parser.add_subparsers(dest="command")
@@ -139,6 +194,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     console = sub.add_parser("console", help="Open the contained terminal dashboard.")
     console.set_defaults(func=cmd_console)
+
+    update = sub.add_parser("update", help="Pull the latest ADM from GitHub and reinstall it.")
+    update.set_defaults(func=cmd_update)
 
     return parser
 
