@@ -26,3 +26,4 @@ adm --help
 - Keep ADM fully contained in the terminal. Do not add a web server or browser UI.
 - Keep Docker access behind the Docker CLI wrapper in `awsdockermanager/dockerctl.py`.
 - Tests should not require Docker to be installed.
+- Update `README.md` when user-facing commands or behavior change.

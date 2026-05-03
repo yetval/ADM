@@ -1,8 +1,10 @@
-# AWS Docker Manager
+# ADM
 
-`adm` is a contained command-line dashboard for managing Docker containers on an AWS host.
+[![CI](https://github.com/yetval/ADM/actions/workflows/ci.yml/badge.svg)](https://github.com/yetval/ADM/actions/workflows/ci.yml)
 
-Type `adm` or `ADM` and it opens the terminal console. No browser, no web service.
+ADM is a contained terminal dashboard for managing Docker containers on an AWS host.
+
+Type `adm` or `ADM` and it opens the live console. No browser. No web service.
 
 ## Preview
 
@@ -26,25 +28,25 @@ All scanned containers look steady.
 +------------------------------+ +--------------------------------------------+
 ```
 
-## Install on AWS
+## Install On AWS
 
 ```bash
-git clone <repo-url> awsdockermanager
-cd awsdockermanager
+git clone https://github.com/yetval/ADM.git
+cd ADM
 sudo ./scripts/install-aws.sh
 ```
 
-After install:
+If Docker group permissions were changed during install, log out and back in before running ADM as your normal user.
+
+## Use
+
+Open the live terminal console:
 
 ```bash
-adm status
-adm list
 adm
 ```
 
-## Three-word commands
-
-The command shape is intentionally short:
+Run direct commands:
 
 ```bash
 adm status
@@ -64,22 +66,29 @@ adm console
 Inside the terminal console:
 
 - `/` opens the command prompt.
-- `r` refreshes.
+- `r` refreshes immediately.
 - `j` / `k` or arrow keys move through containers.
 - `s` starts the selected container.
 - `x` stops the selected container.
 - `e` restarts the selected container.
 - `l` shows logs for the selected container.
+- `i` inspects the selected container.
 - `q` quits.
 
-## What the terminal dashboard shows
+## Live Scanning
 
-- Host CPU, memory, disk, load average, uptime, kernel, architecture, and AWS metadata when available.
-- Docker daemon availability and version.
-- Containers with state, image, health, restart count, and quick keyboard actions.
-- A persistent live scan every three seconds.
-- Problem flags for down containers, non-zero exits, unhealthy healthchecks, restart loops, OOM kills, Docker errors, high memory, and recent error-looking log lines.
-- Tips for stopped, unhealthy, restarting, high-memory, high-disk, error-log, and missing-Docker situations.
+ADM scans continuously every three seconds and highlights:
+
+- Docker offline or unreachable.
+- Containers that are down or exited.
+- Non-zero container exit codes.
+- Unhealthy Docker healthchecks.
+- Restart loops.
+- OOM kills.
+- Docker state errors.
+- High container memory usage.
+- Recent log lines containing error, fatal, exception, traceback, panic, critical, permission denied, connection refused, or out-of-memory signals.
+- Host CPU, memory, and disk pressure.
 
 ## Development
 
@@ -97,6 +106,17 @@ python3 -m compileall awsdockermanager tests
 python3 -m unittest discover -s tests
 ```
 
-## Safety
+Install locally:
 
-ADM executes Docker operations as the current user. On AWS, run it as a user that has Docker permissions and avoid running arbitrary container names from untrusted input.
+```bash
+python3 -m pip install -e .
+adm
+```
+
+## Security
+
+ADM executes Docker operations as the current user. On AWS, run it as a trusted user with Docker permissions. Do not expose a shell running ADM to untrusted users.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
