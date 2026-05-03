@@ -1,7 +1,7 @@
 import unittest
 
 from awsdockermanager.advisor import build_tips
-from awsdockermanager.dockerctl import container_problems
+from awsdockermanager.dockerctl import container_problems, docker_error_diagnosis
 
 
 class ScannerTests(unittest.TestCase):
@@ -53,6 +53,26 @@ class ScannerTests(unittest.TestCase):
         titles = {tip["title"] for tip in tips}
         self.assertIn("Containers exited with errors", titles)
         self.assertIn("No running containers", titles)
+
+    def test_docker_permission_denied_is_diagnosed(self) -> None:
+        error = "permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock"
+
+        self.assertEqual(docker_error_diagnosis(error), "docker-permission-denied")
+
+    def test_advisor_gives_newgrp_fix_for_socket_permission(self) -> None:
+        snapshot = {
+            "docker": {
+                "available": False,
+                "diagnosis": "docker-permission-denied",
+                "error": "permission denied while trying to connect to /var/run/docker.sock",
+            },
+            "system": {},
+            "containers": [],
+        }
+
+        tips = build_tips(snapshot)
+
+        self.assertIn("newgrp docker", tips[0]["detail"])
 
 
 if __name__ == "__main__":

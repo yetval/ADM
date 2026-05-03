@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from .dockerctl import docker_fix_message
+
 
 def build_tips(snapshot: dict[str, Any]) -> list[dict[str, str]]:
     tips: list[dict[str, str]] = []
@@ -10,10 +12,12 @@ def build_tips(snapshot: dict[str, Any]) -> list[dict[str, str]]:
     containers = snapshot.get("containers", [])
 
     if not docker.get("available"):
+        diagnosis = str(docker.get("diagnosis", "docker-unavailable"))
+        error = str(docker.get("error", ""))
         tips.append({
             "level": "critical",
             "title": "Docker is not available",
-            "detail": "Install Docker, start the daemon, or add this user to the docker group.",
+            "detail": docker_fix_message(diagnosis, error),
         })
         return tips
 

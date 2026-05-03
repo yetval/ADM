@@ -60,13 +60,43 @@ ERROR_PATTERNS = re.compile(
 def docker_version() -> dict[str, Any]:
     result = run_docker(["version", "--format", "{{json .}}"])
     if not result.ok:
-        return {"available": False, "error": result.stderr or result.stdout}
+        error = result.stderr or result.stdout
+        return {
+            "available": False,
+            "error": error,
+            "diagnosis": docker_error_diagnosis(error, result.code),
+        }
     try:
         data = json.loads(result.stdout)
     except json.JSONDecodeError:
         data = {"raw": result.stdout}
     data["available"] = True
     return data
+
+
+def docker_error_diagnosis(error: str, code: int = 1) -> str:
+    lowered = error.lower()
+    if code == 127 or "not installed" in lowered or "not in path" in lowered:
+        return "docker-cli-missing"
+    if "permission denied" in lowered or "var/run/docker.sock" in lowered:
+        return "docker-permission-denied"
+    if "cannot connect to the docker daemon" in lowered or "is the docker daemon running" in lowered:
+        return "docker-daemon-unreachable"
+    if "connection refused" in lowered:
+        return "docker-daemon-unreachable"
+    return "docker-unavailable"
+
+
+def docker_fix_message(diagnosis: str, error: str = "") -> str:
+    if diagnosis == "docker-permission-denied":
+        return "Docker is installed, but this shell cannot access /var/run/docker.sock. Run: newgrp docker. If that fails, log out and back in, or use sudo adm."
+    if diagnosis == "docker-daemon-unreachable":
+        return "Docker CLI is installed, but the daemon is not reachable. Run: sudo systemctl enable --now docker."
+    if diagnosis == "docker-cli-missing":
+        return "Docker CLI is missing. Run the installer again: sudo ./scripts/install-aws.sh."
+    if error:
+        return f"Docker is unavailable: {error}"
+    return "Docker is unavailable. Check docker ps, Docker service status, and user permissions."
 
 
 def containers(all_containers: bool = True) -> list[dict[str, Any]]:

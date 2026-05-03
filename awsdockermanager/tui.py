@@ -6,6 +6,7 @@ import time
 from typing import Any
 
 from . import dockerctl
+from .dockerctl import docker_fix_message
 from .snapshot import collect_snapshot
 
 SCAN_INTERVAL = 3.0
@@ -212,7 +213,8 @@ class AdmConsole:
             return "critical", f"SCAN ERROR: {self.scan_error}"
         docker = self.snapshot.get("docker", {})
         if not docker.get("available"):
-            return "critical", "Docker offline. ADM is still scanning the host and will reconnect automatically."
+            message = docker_fix_message(str(docker.get("diagnosis", "")), str(docker.get("error", "")))
+            return "critical", message
         rows = self.snapshot.get("containers", [])
         bad = [row for row in rows if row.get("Problems") or row.get("LogErrors")]
         if bad:
