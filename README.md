@@ -40,6 +40,15 @@ The installer creates an isolated Python environment at `/opt/adm`, installs `ad
 
 If Docker group permissions were changed during install, log out and back in before running ADM as your normal user. On a fresh EC2 install, this is usually required. You can also run `newgrp docker` in the current shell.
 
+## Install With npm
+
+```bash
+npm install -g awsdockermanager
+adm
+```
+
+The npm package installs the `adm` and `ADM` commands. It requires Python 3.10+ and Docker on the host.
+
 Upgrade an existing install:
 
 ```bash

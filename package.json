@@ -1,0 +1,41 @@
+{
+  "name": "awsdockermanager",
+  "version": "0.1.0",
+  "description": "ADM: a contained terminal dashboard for managing Docker containers on AWS hosts.",
+  "license": "MIT",
+  "homepage": "https://github.com/yetval/ADM#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yetval/ADM.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yetval/ADM/issues"
+  },
+  "keywords": [
+    "aws",
+    "docker",
+    "containers",
+    "terminal",
+    "tui",
+    "devops",
+    "monitoring"
+  ],
+  "bin": {
+    "adm": "bin/adm.js",
+    "ADM": "bin/adm.js"
+  },
+  "files": [
+    "awsdockermanager/*.py",
+    "bin/adm.js",
+    "scripts/install-aws.sh",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "test": "python3 -m unittest discover -s tests && python3 -m compileall awsdockermanager tests"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
