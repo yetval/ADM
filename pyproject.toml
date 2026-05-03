@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "awsdockermanager"
+version = "0.1.0"
+description = "ADM: a compact AWS Docker container manager with a contained terminal console."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "ADM" }]
+dependencies = []
+keywords = ["aws", "docker", "terminal", "tui", "containers", "devops"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console :: Curses",
+  "Intended Audience :: System Administrators",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Systems Administration",
+]
+
+[project.scripts]
+adm = "awsdockermanager.cli:main"
+ADM = "awsdockermanager.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["awsdockermanager*"]
