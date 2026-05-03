@@ -36,7 +36,17 @@ cd ADM
 sudo ./scripts/install-aws.sh
 ```
 
-If Docker group permissions were changed during install, log out and back in before running ADM as your normal user.
+The installer creates an isolated Python environment at `/opt/adm`, installs `adm` into it, and links `adm` and `ADM` into `/usr/local/bin`.
+
+If Docker group permissions were changed during install, log out and back in before running ADM as your normal user. On a fresh EC2 install, this is usually required. You can also run `newgrp docker` in the current shell.
+
+Upgrade an existing install:
+
+```bash
+cd ADM
+git pull
+sudo ./scripts/install-aws.sh
+```
 
 ## Use
 
